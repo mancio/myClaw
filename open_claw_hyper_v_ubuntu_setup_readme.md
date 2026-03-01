@@ -309,6 +309,59 @@ OpenClaw is now fully functional and ready for:
 
 ---
 
+# Automated Setup Scripts
+
+Two scripts are provided to automate this entire guide:
+
+## 1. `create_vm.ps1` — Windows Host (Hyper-V VM creation)
+
+Creates and configures the Ubuntu VM in Hyper-V. Run as **Administrator** in PowerShell:
+
+```powershell
+# Edit the script first: set $ISOPath to your Ubuntu Server ISO
+.\create_vm.ps1
+```
+
+What it does:
+- Creates a Generation 2 Hyper-V VM
+- Allocates 4 GB RAM, 2 CPUs, 80 GB disk
+- Disables Secure Boot
+- Attaches the Ubuntu ISO and sets boot order
+- Optionally starts the VM
+
+## 2. `setup_openclaw.sh` — Ubuntu Guest (full OpenClaw setup)
+
+After Ubuntu is installed, copy this script into the VM and run it:
+
+```bash
+chmod +x setup_openclaw.sh
+sudo ./setup_openclaw.sh --repo-url https://github.com/org/openclaw.git
+```
+
+What it does (Steps 4–14 automated):
+- Installs Docker & Docker Compose
+- Clones the OpenClaw repository
+- Creates config & workspace directories
+- Generates a secure gateway token and `.env` file
+- Builds and starts all containers
+- Configures the gateway in local mode
+- Sets `allowedOrigins` for the VM IP
+- Deploys an Nginx reverse proxy (auto-injects auth token)
+- Verifies everything is working
+
+### Environment Variables / Flags
+
+| Flag / Env Var | Default | Description |
+|---|---|---|
+| `--repo-url` / `OPENCLAW_REPO_URL` | *(required)* | OpenClaw Git clone URL |
+| `--install-dir` / `OPENCLAW_INSTALL_DIR` | `/opt/openclaw` | Where to clone the repo |
+| `--data-dir` / `OPENCLAW_DATA_DIR` | `~/.openclaw` | Config & workspace storage |
+| `--nginx-port` / `OPENCLAW_NGINX_PORT` | `8080` | Nginx proxy listen port |
+
+The script is **idempotent** — safe to re-run if something fails midway.
+
+---
+
 # Next Steps
 
 Recommended next actions:
